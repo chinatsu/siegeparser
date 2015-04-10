@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+<link href="http://kawaii.desi/res/css/style.css" type="text/css" rel="stylesheet" />
+<title>Equinox Flyff Siege logs</title>
+</head>
+<body>
+<table>
+<tr id="tablehead"><th class="name">Most recent logs</th></td>
+</table>
+<table id="content">
+{% for file in logfiles %}
+    <tr>
+        <td class="name">
+            <a href="g/{{ file }}">{{ file }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+<!--<div id="uload">
+    <a href="upload">Upload log</a>
+</div>-->
+</body>

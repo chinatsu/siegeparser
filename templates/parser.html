@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+<link href="http://kawaii.desi/res/css/style.css" type="text/css" rel="stylesheet" />
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+<title>Equinox Flyff Siege log viewer</title>
+</head>
+<body>
+<div class="head">
+<table id="tablehead">
+    <tr>
+        <th class="gname">Guild</th>
+        <th class="gkills">Kills</th>
+        <th class="gpoints">Points</th>
+    </tr>
+</table>
+</div>
+<div class="main">
+<table id="content">
+{% for g in guildjson %}
+    <tr>
+        <td class="gname">{{ g['name'] }}</td>
+        <td class="gkills">{{ g['kills'] }}</td>
+        <td class="gpoints">{{ g['points'] }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+<div class="head">
+<table id="tablehead">
+    <tr>
+        <th class="char info">Character</th>
+        <th class="kills info">Kills</th>
+        <th class="deaths info">Deaths</th>
+        <th class="ratio info">Ratio</th>
+        <th class="points info">Points</th>
+    </tr>
+</table>
+</div>
+<div class="main">
+{% for char in playerjson %}
+<table id="playercontent">
+    <tr class="maininfo">
+        {% if char['master'] %}
+        <td class="leader name">{{ "[" + char['guild'] + "] " + char['name'] }}</td>
+        {% elif char['defender'] %}
+        <td class="defender name">{{ "[" + char['guild'] + "] " + char['name'] }}</td>
+        {% else %}
+        <td class="name">{{ "[" + char['guild'] + "] " + char['name'] }}</td>
+        {% endif %}
+        <td class="kills">{{ char['kills'] }}</td>
+        <td class="deaths">{{ char['deaths'] }}</td>
+        <td class="ratio">{{ char['ratio'] }}</td>
+        <td class="points">{{ char['points'] }}</td>
+    </tr>
+</table>
+    <div class="detail hidden">
+        <h1>[{{char['guild']}}] {{char['name']}} {% if char['master'] %}- <span class="leader">Guild Master</span>{% elif char['defender'] %}- <span class="defender">Defender</span>{% endif %}</h1>
+        <hr />
+        {% if char['victims'] %}
+        <div class="victimdiv">
+            <h3>Victims</h3>
+            <table class="detailtable">
+            {% for column in char['victims']|batch(3) %}
+                <tr>
+                    {% for item in column %}
+                        <th>Life {{ item }}:</th>
+                    {% endfor %}
+                </tr>
+                <tr class="victimlist">
+                    {% for item in column %}
+                    <td>
+                        {% for guild, victim in char['victims'][item] %}
+                            [{{ guild }}] {{ victim }}<br />
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        {% if char['killedby'] %}
+        <div class="killerdiv">
+            <h3>Killers</h3>
+            <ol>
+                {% for life in char['killedby'] %}
+                    {% for guild, killer in char['killedby'][life] %}
+                        <li>[{{ guild }}] {{ killer }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+        {% if char['awards'] %}
+            <div class="awarddiv">
+                <h3>Awards</h3>
+                <ul>
+                    {% for award in char['awards'] %}
+                        <li>{{ award }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}
+</div>
+<p class="confidence">Confidence level: {{ confInt }}</p>
+<div class="infodiv">
+    <a href="#" class="toggleaward">Award explanation</a>
+    <div class="awardinfo">
+        <p>Balanced - Have a k/d ratio of 1.0</p>
+        <p>Pacifist - Have a k/d ratio of 0.0</p>
+        <p>Off Center - Have a k/d ratio of 0.9 or 1.1</p>
+        <p>Irrational - Have a k/d ratio ending in .33 or .67</p>
+        <p>Farmer - Have a k/d ratio of over 5.0</p>
+        <p>Mmm, pie - Have a k/d ratio of 3.14</p>
+        <p>Tasty Snack - Have no kills and 10 deaths</p>
+        <p>Hoarder - Have over 25 kills</p>
+        <p>Hacker - Have over 50 kills</p>
+        <p>One Trick Pony - Have a single kill</p>
+        <p>Hentai - Have 69 points</p>
+        <p>Neo-Nazi - Have 88 points</p>
+        <p>Jailbait - Have between 14 and 17 points</p>
+        <p>Quitter - Have less than 10 deaths, and not be part of the winning team (this could also indicate the siege time running out)</p>
+        <p>Captured the Flag! - Kill the MVP</p>
+        <p>Steadfast Defender - Have 0 deaths as defender (currently unattainable due to limitations in the log format)</p>
+        <p>Offender - Kill someone as defender</p>
+        <p>Steadfast - Have 0 deaths</p>
+        <p>Most Valuable Player - Score the most points</p>
+        <p>Kingslayer - Kill a guild master</p>
+        <p>Focused - Kill the same person 7 times or more</p>
+        <p>Arch Nemesis - Kill the same person 10 times</p>
+        <p>Teamed - Die 3 times or more, and have all deaths caused by a single guild</p>
+        <p>Soloist - Be the sole contributor to a guild's points</p>
+        <p>Early Riser - Have more than 8 kills and 3 deaths, kill more than half of your total victims on the first life</p>
+        <p>Late Bloomer - Have more than 8 kills and 3 deaths, kill more than half of your total victims on the last life</p>
+        <p>Glory Hunter - Have more than 5 awards</p>
+    </div>
+</div>
+<script>
+    $('tr.maininfo').click(function() {
+        if (!$('.hidden').is(':visible')) {
+            $(this).parent().parent().next('.hidden').animate({width: 'toggle'});
+        }
+        else if ($(this).parent().parent().next('.hidden').is(':visible')) {
+            $(this).parent().parent().next('.hidden').animate({width: 'toggle'});
+        }
+        else {
+            $('.hidden:visible').fadeOut();
+	    $(this).parent().parent().next('.hidden').fadeToggle();
+        }
+    });
+    $('a.toggleaward').click(function() {
+        $('.awardinfo').slideToggle( "slow" );
+    });
+</script>
+</body>
