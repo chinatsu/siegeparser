@@ -39,10 +39,11 @@ def getResults(file):
     guilds = collections.defaultdict(Guild)
     characters = collections.defaultdict(Character)
     
-    line1 = re.compile('\[(?P<guild>\w*)\] (?P<master>Guild Master)?' +
-                       '(?P<defender>Defender)? (?P<character>\w+)' +
-                       '\((?P<points>\d) grade\).*\[(?P<dedguild>\w*)\] ' +
-                       '(?P<dedmaster>Guild Master)?(?P<dedfender>Defender)? ' +
+    line1 = re.compile('\[(?P<guild>\w+)\]\s*(?P<master>(Guild Master|Matre de guilde|Der Gildenmeister))?' +
+                       '(?P<defender>(Defender|Dfenseur|Verteidiger))?\s*(?P<character>\w+)' +
+                       '\((Stufe )?(?P<points>\d)( grade)?\).*\[(?P<dedguild>\w*)\]\s*' +
+                       '(?P<dedmaster>(Guild Master|Matre de guilde|Der Gildenmeister))?' +
+                       '(?P<dedfender>(Defender|Dfenseur|Verteidiger))?\s*' +
                        '(?P<dedcharacter>\w+)')
     # line2 = re.compile('< (Basic Point \+(?P<basic>\d)),?' +
     #                    '( Guild Master Bonus \+(?P<master>\d))?,?' +
